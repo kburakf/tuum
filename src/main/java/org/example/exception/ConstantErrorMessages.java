@@ -3,7 +3,6 @@ package org.example.exception;
 public class ConstantErrorMessages {
     public static final String INVALID_CURRENCY = "Invalid currency input. Allowed values are EUR, SEK, GBP, USD";
     public static final String ACCOUNT_NOT_FOUND = "Account not found";
-    public static final String TRANSACTION_NOT_FOUND = "Transaction not found";
     public static final String BALANCE_NOT_FOUND = "Balance not found";
     public static final String INVALID_AMOUNT = "The provided amount is invalid. It must be a positive number";
     public static final String ACCOUNT_MISSING = "The account ID is missing or invalid";

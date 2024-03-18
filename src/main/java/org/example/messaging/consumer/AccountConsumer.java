@@ -2,7 +2,7 @@ package org.example.messaging.consumer;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.CreateAccountRequest;
-import org.example.dto.response.AccountRabbitMQResponse;
+import org.example.dto.response.CreateAccountRabbitMQResponse;
 import org.example.properties.RabbitMQProperties;
 import org.example.service.AccountService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -14,7 +14,7 @@ public class AccountConsumer {
     private final AccountService accountService;
 
     @RabbitListener(queues = RabbitMQProperties.CREATE_ACCOUNT_QUEUE)
-    public AccountRabbitMQResponse receiveMessage(CreateAccountRequest request) {
+    public CreateAccountRabbitMQResponse receiveMessage(CreateAccountRequest request) {
         return accountService.createAccount(request);
     }
 }

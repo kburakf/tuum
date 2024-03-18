@@ -3,10 +3,9 @@ package org.example.controller.impl;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.AccountController;
 import org.example.dto.request.CreateAccountRequest;
-import org.example.dto.response.AccountRabbitMQResponse;
-import org.example.dto.response.AccountResponse;
+import org.example.dto.response.CreateAccountRabbitMQResponse;
+import org.example.dto.response.AccountWithBalancesResponse;
 import org.example.manager.AccountManager;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,24 +15,20 @@ public class AccountControllerImpl implements AccountController {
     private final AccountManager accountManager;
 
     @Override
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public AccountResponse createAccount(@RequestBody CreateAccountRequest request) {
-        AccountRabbitMQResponse accountRabbitMQResponse = accountManager.createAccount(request);
+    public AccountWithBalancesResponse createAccount(@RequestBody CreateAccountRequest request) {
+        CreateAccountRabbitMQResponse createAccountRabbitMQResponse = accountManager.createAccount(request);
 
-        AccountResponse accountResponse = new AccountResponse();
+        AccountWithBalancesResponse accountWithBalancesResponse = new AccountWithBalancesResponse();
 
-        accountResponse.setAccountId(accountRabbitMQResponse.getAccountId());
-        accountResponse.setCustomerId(accountRabbitMQResponse.getCustomerId());
-        accountResponse.setBalances(accountRabbitMQResponse.getBalances());
+        accountWithBalancesResponse.setAccountId(createAccountRabbitMQResponse.getAccountId());
+        accountWithBalancesResponse.setCustomerId(createAccountRabbitMQResponse.getCustomerId());
+        accountWithBalancesResponse.setBalances(createAccountRabbitMQResponse.getBalances());
 
-        return accountResponse;
+        return accountWithBalancesResponse;
     }
 
     @Override
-    @GetMapping("/{accountId}")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountResponse getAccount(@PathVariable String accountId) {
-        return accountManager.getAccount(accountId);
+    public AccountWithBalancesResponse getAccountWithBalances(@PathVariable String accountId) {
+        return accountManager.getAccountWithBalances(accountId);
     }
 }

@@ -14,7 +14,7 @@ public class TuumExceptionHandler {
 
     @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<BaseResponse> handleException(Exception e) {
-        log.error("An error occured: {}", e.getMessage());
+        log.error("An error occurred: {}", e.getMessage());
 
         BaseResponse baseResponse = createErrorResponse(e.getMessage());
 
@@ -23,7 +23,7 @@ public class TuumExceptionHandler {
 
     @ExceptionHandler(value = {TuumBusinessException.class})
     public ResponseEntity<BaseResponse> handleBusinessException(TuumBusinessException e) {
-        log.error("A business exception occured: {}", e.getMessage());
+        log.error("A business exception occurred: {}", e.getMessage());
 
         BaseResponse baseResponse = createErrorResponse(e.getMessage());
 

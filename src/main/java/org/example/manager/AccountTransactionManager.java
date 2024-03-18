@@ -5,9 +5,9 @@ import org.example.dto.request.CreateTransactionRequest;
 import org.example.dto.response.CreateTransactionRabbitMQResponse;
 import org.example.dto.response.GetTransactionResponse;
 import org.example.messaging.publisher.MessagePublisher;
-import org.example.model.vo.TransactionVo;
 import org.example.properties.RabbitMQProperties;
 import org.example.service.TransactionService;
+import org.example.util.TransactionValidationUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,11 +19,13 @@ public class AccountTransactionManager {
     private final TransactionService transactionService;
 
     public CreateTransactionRabbitMQResponse createTransaction(CreateTransactionRequest request) {
-        request.validate();
+        TransactionValidationUtil.validateTransactionRequest(request);
 
-        TransactionVo transactionVo = transactionService.getAccount(request);
+        transactionService.preCreateTransactionCheck(request);
 
-        return messagePublisher.publishMessage(RabbitMQProperties.CREATE_TRANSACTION_ROUTING_KEY, transactionVo, CreateTransactionRabbitMQResponse.class);
+        CreateTransactionRequest createTransactionRequest = transactionService.prepareTransactionDetails(request);
+
+        return messagePublisher.publishMessage(RabbitMQProperties.CREATE_TRANSACTION_ROUTING_KEY, createTransactionRequest, CreateTransactionRabbitMQResponse.class);
     }
 
     public List<GetTransactionResponse> getTransactions(String accountId) {

@@ -2,14 +2,14 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.request.CreateAccountRequest;
-import org.example.dto.response.AccountRabbitMQResponse;
-import org.example.dto.response.AccountResponse;
+import org.example.dto.response.CreateAccountRabbitMQResponse;
+import org.example.dto.response.AccountWithBalancesResponse;
 import org.example.dto.response.BalanceResponse;
 import org.example.exception.AccountNotFoundException;
 import org.example.exception.ConstantErrorMessages;
+import org.example.mapper.AccountMapper;
 import org.example.model.Account;
 import org.example.model.Balance;
-import org.example.mapper.AccountMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,20 +24,20 @@ public class AccountService {
     private final BalanceService balanceService;
 
     @Transactional
-    public AccountRabbitMQResponse createAccount(CreateAccountRequest request) {
+    public CreateAccountRabbitMQResponse createAccount(CreateAccountRequest request) {
         Account account = new Account();
         account.setId(UUID.randomUUID().toString());
         account.setCustomerId(request.getCustomerId());
         account.setCountry(request.getCountry());
         accountMapper.insertAccount(account);
 
-        AccountRabbitMQResponse response = new AccountRabbitMQResponse();
+        CreateAccountRabbitMQResponse response = new CreateAccountRabbitMQResponse();
         response.setAccountId(account.getId());
         response.setCustomerId(account.getCustomerId());
 
         List<Balance> createdBalances = balanceService.createBalances(account.getId(), request.getCurrencies());
 
-        createdBalances.forEach(createdBalance ->{
+        createdBalances.forEach(createdBalance -> {
             BalanceResponse balanceResponse = new BalanceResponse();
             balanceResponse.setCurrency(createdBalance.getCurrency());
             balanceResponse.setAvailableAmount(createdBalance.getAvailableAmount());
@@ -47,17 +47,20 @@ public class AccountService {
         return response;
     }
 
-    @Transactional(readOnly = true)
-    public AccountResponse getAccount(String accountId) {
+    public AccountWithBalancesResponse getAccountWithBalances(String accountId) {
         Account account = accountMapper.findById(accountId).orElseThrow(() -> new AccountNotFoundException(ConstantErrorMessages.ACCOUNT_NOT_FOUND));
 
         List<Balance> balances = balanceService.retrieveBalancesByAccountId(accountId);
 
-        return mapToAccountResponse(account, balances);
+        return mapToAccountAndBalancesResponse(account, balances);
     }
 
-    private AccountResponse mapToAccountResponse(Account account, List<Balance> balances) {
-        AccountResponse response = new AccountResponse();
+    public void getAccount(String accountId) {
+        accountMapper.findById(accountId).orElseThrow(() -> new AccountNotFoundException(ConstantErrorMessages.ACCOUNT_NOT_FOUND));
+    }
+
+    private AccountWithBalancesResponse mapToAccountAndBalancesResponse(Account account, List<Balance> balances) {
+        AccountWithBalancesResponse response = new AccountWithBalancesResponse();
         response.setAccountId(account.getId());
         response.setCustomerId(account.getCustomerId());
         response.setBalances(balances.stream().map(balance -> {
